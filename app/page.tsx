@@ -1,93 +1,80 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { Card } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import {
-  BarChart3,
-  Users,
   FileText,
+  Users,
+  Target,
+  BarChart3,
   TrendingUp,
   Clock,
   RefreshCw,
-  Target,
-  Activity,
-  PieChart,
-  CheckCircle2,
   ExternalLink,
 } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  BarChart,
-  Bar,
   LineChart,
   Line,
-  PieChart as RechartsPieChart,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
   Pie,
   Cell,
   RadarChart,
   Radar,
   PolarGrid,
   PolarAngleAxis,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
 } from "recharts"
 
 // Demo data
-const scoreEvolution = [
-  { dia: "Seg", individualista: 2.8, coletivista: 3.2 },
-  { dia: "Ter", individualista: 2.5, coletivista: 3.5 },
-  { dia: "Qua", individualista: 3.0, coletivista: 3.3 },
-  { dia: "Qui", individualista: 2.7, coletivista: 3.6 },
-  { dia: "Sex", individualista: 2.9, coletivista: 3.4 },
+const evolutionData = [
+  { day: "Seg", ind: 2.8, col: 3.2 },
+  { day: "Ter", ind: 2.6, col: 3.4 },
+  { day: "Qua", ind: 2.9, col: 3.1 },
+  { day: "Qui", ind: 2.7, col: 3.5 },
+  { day: "Sex", ind: 2.8, col: 3.4 },
 ]
 
-const responsesByHour = [
-  { hora: "08h", respostas: 3 },
-  { hora: "10h", respostas: 8 },
-  { hora: "12h", respostas: 5 },
-  { hora: "14h", respostas: 12 },
-  { hora: "16h", respostas: 9 },
-  { hora: "18h", respostas: 4 },
+const hourlyData = [
+  { hour: "08h", count: 4, fill: "#94a3b8" },
+  { hour: "10h", count: 8, fill: "#64748b" },
+  { hour: "12h", count: 12, fill: "#2dd4bf" },
+  { hour: "14h", count: 15, fill: "#14b8a6" },
+  { hour: "16h", count: 10, fill: "#0d9488" },
+  { hour: "18h", count: 6, fill: "#64748b" },
 ]
 
-const factorDistribution = [
-  { name: "Individualista", value: 45, fill: "#0d9488" },
-  { name: "Coletivista", value: 55, fill: "#1e3a5f" },
+const factorData = [
+  { name: "Individualista", value: 45, color: "#1e3a5f" },
+  { name: "Coletivista", value: 55, color: "#14b8a6" },
 ]
 
-const scoreRanges = [
-  { range: "1.0-2.0", count: 8, fill: "#ef4444" },
-  { range: "2.0-3.0", count: 15, fill: "#f97316" },
-  { range: "3.0-4.0", count: 22, fill: "#eab308" },
-  { range: "4.0-5.0", count: 12, fill: "#22c55e" },
+const distributionData = [
+  { range: "1.0-2.0", count: 5, color: "#ef4444" },
+  { range: "2.0-3.0", count: 18, color: "#f59e0b" },
+  { range: "3.0-4.0", count: 20, color: "#eab308" },
+  { range: "4.0-5.0", count: 4, color: "#22c55e" },
 ]
 
 const radarData = [
-  { subject: "Hierarquia", A: 3.2, fullMark: 5 },
-  { subject: "Controle", A: 2.8, fullMark: 5 },
-  { subject: "Autonomia", A: 3.5, fullMark: 5 },
-  { subject: "Colaboração", A: 4.1, fullMark: 5 },
-  { subject: "Inovação", A: 3.0, fullMark: 5 },
-  { subject: "Regras", A: 3.8, fullMark: 5 },
+  { dim: "Hierarquia", value: 3.2, fullMark: 5 },
+  { dim: "Controle", value: 2.8, fullMark: 5 },
+  { dim: "Autonomia", value: 3.5, fullMark: 5 },
+  { dim: "Colaboração", value: 3.8, fullMark: 5 },
+  { dim: "Inovação", value: 3.1, fullMark: 5 },
+  { dim: "Regras", value: 2.9, fullMark: 5 },
 ]
 
 const recentResponses = [
-  { id: 1, time: "14:32", code: "RCP001", score: 3.2, risk: "Baixo" },
-  { id: 2, time: "14:28", code: "RCP002", score: 2.8, risk: "Moderado" },
-  { id: 3, time: "14:15", code: "RCP003", score: 3.9, risk: "Baixo" },
-  { id: 4, time: "13:58", code: "RCP004", score: 1.8, risk: "Alto" },
-  { id: 5, time: "13:42", code: "RCP005", score: 4.1, risk: "Baixo" },
+  { id: 1, participant: "Participante #42", score: 3.12, time: "14:32", risk: "Moderado" },
+  { id: 2, participant: "Participante #41", score: 2.78, time: "14:28", risk: "Moderado" },
+  { id: 3, participant: "Participante #40", score: 3.85, time: "14:15", risk: "Baixo" },
+  { id: 4, participant: "Participante #39", score: 2.15, time: "13:58", risk: "Alto" },
+  { id: 5, participant: "Participante #38", score: 3.42, time: "13:45", risk: "Baixo" },
 ]
 
 const questionsData = [
@@ -101,58 +88,56 @@ const questionsData = [
   { pergunta: "Os laços afetivos são fracos entre as pessoas desta organização", fator: "Estilo Individualista", escala: "Escala dos Estilos de Gestão", media: 3.5, respostas: 2 },
   { pergunta: "Há forte controle do trabalho", fator: "Estilo Individualista", escala: "Escala dos Estilos de Gestão", media: 3.0, respostas: 2 },
   { pergunta: "O ambiente de trabalho se desorganiza com mudanças", fator: "Estilo Individualista", escala: "Escala dos Estilos de Gestão", media: 4.5, respostas: 2 },
-  { pergunta: "As pessoas são compromissadas com a organização mesmo quando não há retorno adequado", fator: "Estilo Coletivista", escala: "Escala dos Estilos de Gestão", media: 3.0, respostas: 2 },
+  { pergunta: "As pessoas são comprometidas com a organização mesmo quando não há retorno adequado", fator: "Estilo Coletivista", escala: "Escala dos Estilos de Gestão", media: 3.0, respostas: 2 },
   { pergunta: "O mérito das conquistas na empresa é de todos", fator: "Estilo Coletivista", escala: "Escala dos Estilos de Gestão", media: 2.5, respostas: 2 },
   { pergunta: "O trabalho coletivo é valorizado pelos gestores", fator: "Estilo Coletivista", escala: "Escala dos Estilos de Gestão", media: 2.5, respostas: 2 },
   { pergunta: "Para esta organização, o resultado do trabalho é visto como uma realização do grupo", fator: "Estilo Coletivista", escala: "Escala dos Estilos de Gestão", media: 3.0, respostas: 2 },
 ]
 
-function getMediaColor(value: number): string {
-  if (value >= 4.0) return "bg-green-500"
-  if (value >= 3.0) return "bg-yellow-500"
-  if (value >= 2.0) return "bg-orange-500"
+function getMediaColor(value: number) {
+  if (value >= 4) return "bg-green-500"
+  if (value >= 3) return "bg-yellow-500"
+  if (value >= 2) return "bg-orange-500"
   return "bg-red-500"
 }
 
 function getRiskBadge(risk: string) {
   const colors: Record<string, string> = {
-    "Baixo": "bg-emerald-100 text-emerald-700",
-    "Moderado": "bg-amber-100 text-amber-700",
-    "Alto": "bg-red-100 text-red-700",
+    Baixo: "bg-green-100 text-green-700",
+    Moderado: "bg-yellow-100 text-yellow-700",
+    Alto: "bg-red-100 text-red-700",
   }
   return colors[risk] || "bg-muted text-muted-foreground"
 }
 
 export default function MonitorDashboard() {
-  const [lastUpdate, setLastUpdate] = useState(new Date())
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLastUpdate(new Date())
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [])
+  const currentTime = new Date().toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  })
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="border-b bg-card sticky top-0 z-10">
-        <div className="px-4 h-12 flex items-center justify-between">
+      <header className="bg-card border-b px-4 py-2">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xs">I</span>
-              </div>
-              <span className="font-semibold text-sm text-primary">IvexiaDMS Monitor</span>
+              <img src="https://pgr.tesfire.com/ivexia_logo.svg" alt="Ivexia" className="h-6" />
+              <img src="https://www.sierefire.com/_next/image?url=%2Fimages%2Fpgr-5.png&w=256&q=75" alt="PGR" className="h-6" />
             </div>
+            <span className="font-semibold text-sm text-primary">IvexiaDMS Monitor</span>
             <Badge variant="outline" className="gap-1 text-xs h-6">
               <RefreshCw className="h-3 w-3" />
               Auto 5s
             </Badge>
-            <Badge variant="secondary" className="text-xs h-6">Ivexia - PROART</Badge>
+            <Badge variant="secondary" className="text-xs h-6">
+              Ivexia - PROART
+            </Badge>
           </div>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span>{lastUpdate.toLocaleTimeString("pt-BR")}</span>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="font-mono">{currentTime}</span>
             <span className="text-muted-foreground/50">|</span>
             <span>47 respostas</span>
           </div>
@@ -201,7 +186,7 @@ export default function MonitorDashboard() {
           </Card>
           <Card className="p-3">
             <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-primary" />
+              <TrendingUp className="h-4 w-4 text-accent" />
               <div>
                 <p className="text-[10px] text-muted-foreground uppercase">Coletivista</p>
                 <p className="text-lg font-bold">3.46</p>
@@ -219,311 +204,226 @@ export default function MonitorDashboard() {
           </Card>
         </div>
 
-        {/* Charts Row - 5 charts with legends */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          {/* Score Evolution */}
-          <Card className="col-span-2 md:col-span-1">
-            <CardHeader className="p-3 pb-0">
-              <CardTitle className="text-xs font-medium flex items-center gap-1.5">
-                <TrendingUp className="h-3 w-3 text-accent" />
-                Evolução
-              </CardTitle>
-              <CardDescription className="text-[9px] text-muted-foreground">
-                Média diária por fator
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-2 pt-1">
-              <ResponsiveContainer width="100%" height={90}>
-                <LineChart data={scoreEvolution}>
-                  <XAxis dataKey="dia" tick={{ fontSize: 8 }} axisLine={false} tickLine={false} />
+        {/* Charts Row */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+          {/* Evolution */}
+          <Card className="p-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs font-medium">Evolução</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground mb-2">Média diária por fator</p>
+            <div className="h-24">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={evolutionData}>
+                  <XAxis dataKey="day" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
                   <Tooltip contentStyle={{ fontSize: 10 }} />
-                  <Line type="monotone" dataKey="individualista" stroke="#0d9488" strokeWidth={1.5} dot={false} name="Indiv." />
-                  <Line type="monotone" dataKey="coletivista" stroke="#1e3a5f" strokeWidth={1.5} dot={false} name="Colet." />
+                  <Line type="monotone" dataKey="ind" stroke="#1e3a5f" strokeWidth={2} dot={{ fill: "#1e3a5f", r: 2 }} name="Individualista" />
+                  <Line type="monotone" dataKey="col" stroke="#14b8a6" strokeWidth={2} dot={{ fill: "#14b8a6", r: 2 }} name="Coletivista" />
                 </LineChart>
               </ResponsiveContainer>
-              <div className="flex justify-center gap-3 mt-1">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-[#0d9488]" />
-                  <span className="text-[8px] text-muted-foreground">Indiv.</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-[#1e3a5f]" />
-                  <span className="text-[8px] text-muted-foreground">Colet.</span>
-                </div>
-              </div>
-            </CardContent>
+            </div>
+            <div className="flex gap-3 mt-1 text-[9px] text-muted-foreground">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#1e3a5f]" />Ind.</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#14b8a6]" />Col.</span>
+            </div>
           </Card>
 
-          {/* Responses by Hour */}
-          <Card>
-            <CardHeader className="p-3 pb-0">
-              <CardTitle className="text-xs font-medium flex items-center gap-1.5">
-                <Clock className="h-3 w-3 text-accent" />
-                Por Hora
-              </CardTitle>
-              <CardDescription className="text-[9px] text-muted-foreground">
-                Respostas por horário
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-2 pt-1">
-              <ResponsiveContainer width="100%" height={90}>
-                <BarChart data={responsesByHour}>
-                  <XAxis dataKey="hora" tick={{ fontSize: 8 }} axisLine={false} tickLine={false} />
+          {/* Hourly */}
+          <Card className="p-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs font-medium">Por Hora</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground mb-2">Respostas recebidas hoje</p>
+            <div className="h-24">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={hourlyData}>
+                  <XAxis dataKey="hour" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
                   <Tooltip contentStyle={{ fontSize: 10 }} />
-                  <Bar dataKey="respostas" fill="#0d9488" radius={[2, 2, 0, 0]} name="Respostas" />
-                </BarChart>
-              </ResponsiveContainer>
-              <p className="text-[8px] text-muted-foreground text-center mt-1">Pico: 14h (12 resp.)</p>
-            </CardContent>
-          </Card>
-
-          {/* Factor Distribution */}
-          <Card>
-            <CardHeader className="p-3 pb-0">
-              <CardTitle className="text-xs font-medium flex items-center gap-1.5">
-                <PieChart className="h-3 w-3 text-accent" />
-                Fatores
-              </CardTitle>
-              <CardDescription className="text-[9px] text-muted-foreground">
-                Distribuição de estilos
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-2 pt-1">
-              <ResponsiveContainer width="100%" height={70}>
-                <RechartsPieChart>
-                  <Pie
-                    data={factorDistribution}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={18}
-                    outerRadius={30}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    {factorDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ fontSize: 10 }} />
-                </RechartsPieChart>
-              </ResponsiveContainer>
-              <div className="flex justify-center gap-2 mt-1">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-[#0d9488]" />
-                  <span className="text-[8px] text-muted-foreground">45%</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-[#1e3a5f]" />
-                  <span className="text-[8px] text-muted-foreground">55%</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Score Distribution */}
-          <Card>
-            <CardHeader className="p-3 pb-0">
-              <CardTitle className="text-xs font-medium flex items-center gap-1.5">
-                <BarChart3 className="h-3 w-3 text-accent" />
-                Distribuição
-              </CardTitle>
-              <CardDescription className="text-[9px] text-muted-foreground">
-                Faixas de pontuação
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-2 pt-1">
-              <ResponsiveContainer width="100%" height={90}>
-                <BarChart data={scoreRanges} layout="vertical">
-                  <XAxis type="number" tick={{ fontSize: 8 }} axisLine={false} tickLine={false} />
-                  <YAxis dataKey="range" type="category" tick={{ fontSize: 7 }} width={32} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ fontSize: 10 }} />
-                  <Bar dataKey="count" radius={[0, 2, 2, 0]} name="Qtd.">
-                    {scoreRanges.map((entry, index) => (
+                  <Bar dataKey="count" radius={[2, 2, 0, 0]} name="Respostas">
+                    {hourlyData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.fill} />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
-              <p className="text-[8px] text-muted-foreground text-center mt-1">Moda: 3.0-4.0 (22)</p>
-            </CardContent>
+            </div>
+            <p className="text-[9px] text-muted-foreground mt-1">Pico: 14h (15 respostas)</p>
           </Card>
 
-          {/* Radar Chart */}
-          <Card>
-            <CardHeader className="p-3 pb-0">
-              <CardTitle className="text-xs font-medium flex items-center gap-1.5">
-                <Target className="h-3 w-3 text-accent" />
-                Dimensões
-              </CardTitle>
-              <CardDescription className="text-[9px] text-muted-foreground">
-                Perfil organizacional
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-2 pt-1">
-              <ResponsiveContainer width="100%" height={90}>
+          {/* Factors */}
+          <Card className="p-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Target className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs font-medium">Fatores</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground mb-2">Distribuição dos estilos</p>
+            <div className="h-24 flex items-center justify-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={factorData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={25}
+                    outerRadius={40}
+                    dataKey="value"
+                  >
+                    {factorData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ fontSize: 10 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex justify-center gap-3 mt-1 text-[9px] text-muted-foreground">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#1e3a5f]" />Ind. 45%</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#14b8a6]" />Col. 55%</span>
+            </div>
+          </Card>
+
+          {/* Distribution */}
+          <Card className="p-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <BarChart3 className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs font-medium">Distribuição</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground mb-2">Scores por faixa</p>
+            <div className="space-y-1.5 mt-2">
+              {distributionData.map((item) => (
+                <div key={item.range} className="flex items-center gap-2">
+                  <span className="text-[9px] w-10 text-muted-foreground">{item.range}</span>
+                  <div className="flex-1 h-3 bg-muted rounded-sm overflow-hidden">
+                    <div
+                      className="h-full rounded-sm"
+                      style={{ width: `${(item.count / 24) * 100}%`, backgroundColor: item.color }}
+                    />
+                  </div>
+                  <span className="text-[9px] w-4 text-right text-muted-foreground">{item.count}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-[9px] text-muted-foreground mt-2">Moda: 3.0-4.0 (20 resp.)</p>
+          </Card>
+
+          {/* Radar */}
+          <Card className="p-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Target className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs font-medium">Dimensões</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground mb-2">Perfil organizacional</p>
+            <div className="h-24">
+              <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={radarData}>
-                  <PolarGrid stroke="#e5e7eb" />
-                  <PolarAngleAxis dataKey="subject" tick={{ fontSize: 6 }} />
-                  <Radar name="Score" dataKey="A" stroke="#0d9488" fill="#0d9488" fillOpacity={0.4} />
+                  <PolarGrid strokeDasharray="3 3" stroke="#cbd5e1" />
+                  <PolarAngleAxis dataKey="dim" tick={{ fontSize: 7, fill: "#64748b" }} />
+                  <Radar dataKey="value" fill="#14b8a6" fillOpacity={0.3} stroke="#0d9488" strokeWidth={2} />
                 </RadarChart>
               </ResponsiveContainer>
-              <p className="text-[8px] text-muted-foreground text-center mt-1">6 dimensões avaliadas</p>
-            </CardContent>
+            </div>
+            <p className="text-[9px] text-muted-foreground mt-1">Maior: Colaboração (3.8)</p>
           </Card>
         </div>
 
-        {/* Respostas Recentes */}
-        <Card>
-          <CardHeader className="p-3 pb-2">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-xs font-medium flex items-center gap-1.5">
-                  <Activity className="h-3 w-3 text-accent" />
-                  Respostas Recentes
-                </CardTitle>
-                <CardDescription className="text-[9px] text-muted-foreground mt-0.5">
-                  Últimas submissões com status de processamento
-                </CardDescription>
-              </div>
-              <Badge variant="outline" className="text-[10px] h-5">Últimas 5</Badge>
+        {/* Recent Responses Table */}
+        <Card className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <h2 className="text-sm font-medium">Respostas Recentes</h2>
             </div>
-          </CardHeader>
-          <CardContent className="p-0 px-3 pb-3">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="text-[10px] h-7 uppercase font-semibold">Hora</TableHead>
-                  <TableHead className="text-[10px] h-7 uppercase font-semibold">Código</TableHead>
-                  <TableHead className="text-[10px] h-7 uppercase font-semibold text-center">Média</TableHead>
-                  <TableHead className="text-[10px] h-7 uppercase font-semibold">Risco</TableHead>
-                  <TableHead className="text-[10px] h-7 uppercase font-semibold text-center">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentResponses.map((r, idx) => (
-                  <TableRow key={r.id} className={idx % 2 === 0 ? "bg-muted/20" : "bg-background"}>
-                    <TableCell className="text-xs py-2 text-muted-foreground">{r.time}</TableCell>
-                    <TableCell className="text-xs py-2 font-mono">{r.code}</TableCell>
-                    <TableCell className="text-xs py-2 text-center">
-                      <span className={`inline-flex w-10 justify-center py-0.5 rounded text-white text-[10px] font-medium ${getMediaColor(r.score)}`}>
-                        {r.score.toFixed(1)}
+            <Badge variant="outline" className="text-[10px]">Últimas 5</Badge>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-2 px-2 font-medium text-muted-foreground">Participante</th>
+                  <th className="text-center py-2 px-2 font-medium text-muted-foreground">Score</th>
+                  <th className="text-center py-2 px-2 font-medium text-muted-foreground">Hora</th>
+                  <th className="text-center py-2 px-2 font-medium text-muted-foreground">Risco</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentResponses.map((resp, idx) => (
+                  <tr key={resp.id} className={idx % 2 === 0 ? "bg-muted/30" : "bg-background"}>
+                    <td className="py-2 px-2">{resp.participant}</td>
+                    <td className="py-2 px-2 text-center font-mono">{resp.score.toFixed(2)}</td>
+                    <td className="py-2 px-2 text-center text-muted-foreground">{resp.time}</td>
+                    <td className="py-2 px-2 text-center">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] ${getRiskBadge(resp.risk)}`}>
+                        {resp.risk}
                       </span>
-                    </TableCell>
-                    <TableCell className="text-xs py-2">
-                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${getRiskBadge(r.risk)}`}>
-                        {r.risk}
-                      </span>
-                    </TableCell>
-                    <TableCell className="py-2 text-center">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 mx-auto" />
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
-          </CardContent>
+              </tbody>
+            </table>
+          </div>
         </Card>
 
         {/* Questions Table */}
-        <Card>
-          <CardHeader className="p-3 pb-2">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-xs font-medium flex items-center gap-1.5">
-                  <FileText className="h-3 w-3 text-accent" />
-                  Análise por Pergunta
-                </CardTitle>
-                <CardDescription className="text-[9px] text-muted-foreground mt-0.5">
-                  Pontuação média por item da escala PROART
-                </CardDescription>
-              </div>
-              <Badge variant="outline" className="text-[10px] h-5">
-                {questionsData.length} perguntas
-              </Badge>
+        <Card className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <h2 className="text-sm font-medium">Análise por Pergunta</h2>
             </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="text-[10px] uppercase tracking-wide font-semibold py-2">Pergunta</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wide font-semibold py-2 text-center w-32">Fator</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wide font-semibold py-2 w-48">Escala</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wide font-semibold py-2 text-center w-20 bg-primary/10">Média</TableHead>
-                    <TableHead className="text-[10px] uppercase tracking-wide font-semibold py-2 text-center w-20">Respostas</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {questionsData.map((item, index) => (
-                    <TableRow key={index} className={index % 2 === 0 ? "bg-muted/20" : "bg-background"}>
-                      <TableCell className="text-xs py-2.5">{item.pergunta}</TableCell>
-                      <TableCell className="text-[10px] py-2.5 text-center text-muted-foreground">{item.fator}</TableCell>
-                      <TableCell className="text-[10px] py-2.5 text-muted-foreground">{item.escala}</TableCell>
-                      <TableCell className="py-2.5 text-center bg-primary/5">
-                        <span className={`inline-flex items-center justify-center w-11 py-0.5 rounded text-white text-xs font-medium ${getMediaColor(item.media)}`}>
-                          {item.media.toFixed(2)}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-xs py-2.5 text-center">{item.respostas}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
+            <Badge variant="outline" className="text-[10px]">{questionsData.length} perguntas</Badge>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-2 px-2 font-medium text-muted-foreground uppercase text-[10px]">Pergunta</th>
+                  <th className="text-left py-2 px-2 font-medium text-muted-foreground uppercase text-[10px]">Fator</th>
+                  <th className="text-left py-2 px-2 font-medium text-muted-foreground uppercase text-[10px]">Escala</th>
+                  <th className="text-center py-2 px-2 font-medium text-muted-foreground uppercase text-[10px] bg-muted/50">Média</th>
+                  <th className="text-center py-2 px-2 font-medium text-muted-foreground uppercase text-[10px]">Respostas</th>
+                </tr>
+              </thead>
+              <tbody>
+                {questionsData.map((q, idx) => (
+                  <tr key={idx} className={idx % 2 === 0 ? "bg-muted/30" : "bg-background"}>
+                    <td className="py-2 px-2 max-w-md">{q.pergunta}</td>
+                    <td className="py-2 px-2 text-muted-foreground whitespace-nowrap">{q.fator}</td>
+                    <td className="py-2 px-2 text-muted-foreground whitespace-nowrap">{q.escala}</td>
+                    <td className="py-2 px-2 text-center bg-muted/30">
+                      <span className={`inline-flex items-center justify-center w-12 py-0.5 rounded-full text-white text-[11px] font-medium ${getMediaColor(q.media)}`}>
+                        {q.media.toFixed(2)}
+                      </span>
+                    </td>
+                    <td className="py-2 px-2 text-center text-muted-foreground">{q.respostas}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Card>
       </main>
 
       {/* PROART Footer */}
-      <footer className="border-t bg-card mt-4">
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h2 className="text-sm font-semibold text-foreground">Notas sobre pontuação PROART</h2>
-              <p className="text-[10px] text-muted-foreground">Resumo executivo de cálculo e classificação.</p>
+      <footer className="border-t bg-muted/30 px-4 py-3 mt-auto">
+        <div className="flex items-start justify-between gap-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-xs font-semibold">PROART</h3>
+              <span className="text-[10px] text-muted-foreground">Protocolo de Avaliação dos Riscos Psicossociais no Trabalho</span>
             </div>
-            <a 
-              href="https://www.scielo.br/j/ptp/a/9K9nNfsP9X4tJYLLPRVqMkM/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-[10px] text-accent hover:underline flex items-center gap-1"
-            >
-              Referência PROART
-              <ExternalLink className="h-3 w-3" />
-            </a>
+            <p className="text-[10px] text-muted-foreground leading-relaxed">
+              Escala de 1-5 pontos. <span className="text-green-600 font-medium">Baixo: 3,70-5,00</span> · <span className="text-yellow-600 font-medium">Moderado: 2,30-3,69</span> · <span className="text-red-600 font-medium">Alto: 1,00-2,29</span>. Estilos de Gestão: {"<"}2,50 pouco característico · 2,51-3,50 moderado · {">"}3,50 predominante.
+            </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 gap-4">
-            <Card className="p-3">
-              <h3 className="text-xs font-semibold mb-2">Como calculamos</h3>
-              <ul className="text-[10px] text-muted-foreground space-y-1 list-disc list-inside">
-                <li>Itens de 1 a 5; cada fator é a média simples dos itens do fator.</li>
-                <li>Cada escala (Organização do Trabalho, Estilos de Gestão, Sofrimento, Danos) é média ponderada de seus fatores.</li>
-                <li>O <code className="bg-muted px-1 rounded text-[9px]">score</code> exibido vem de <code className="bg-muted px-1 rounded text-[9px]">score_data.score</code> salvo na resposta.</li>
-              </ul>
-              <div className="mt-3 pt-2 border-t">
-                <h4 className="text-[10px] font-semibold mb-1">Leitura visual</h4>
-                <p className="text-[9px] text-muted-foreground">
-                  Barras: score por resposta · Pizza: distribuição de risco · Área: trajetória recente · Capacidade: usos vs. limite.
-                </p>
-              </div>
-            </Card>
-            
-            <Card className="p-3">
-              <h3 className="text-xs font-semibold mb-2">Classificação</h3>
-              <ul className="text-[10px] text-muted-foreground space-y-1 list-disc list-inside">
-                <li><strong>Org. do Trabalho & Sofrimento/Danos:</strong> Baixo 3,70–5,00 · Moderado 2,30–3,69 · Alto 1,00–2,29.</li>
-                <li><strong>Estilos de Gestão:</strong> {"<"}2,50 pouco característico · 2,51–3,50 presença moderada · {">"}3,50 padrão predominante.</li>
-                <li>Risco lido de <code className="bg-muted px-1 rounded text-[9px]">score_data.risk_level</code>.</li>
-              </ul>
-              <div className="mt-3 pt-2 border-t">
-                <h4 className="text-[10px] font-semibold mb-1">Disponibilidade</h4>
-                <p className="text-[9px] text-muted-foreground">
-                  Monitor usa <code className="bg-muted px-1 rounded text-[9px]">token_hash</code> e fica ativo por até <strong>10 dias</strong> após a criação do link, mesmo se o link já tiver expirado.
-                </p>
-              </div>
-            </Card>
+          <div className="text-right shrink-0">
+            <p className="text-[10px] text-muted-foreground">
+              Monitor ativo por <strong>10 dias</strong> via <code className="bg-muted px-1 rounded text-[9px]">token_hash</code>
+            </p>
+            <a href="#" className="text-[10px] text-accent hover:underline inline-flex items-center gap-1 mt-0.5">
+              Referência PROART <ExternalLink className="h-2.5 w-2.5" />
+            </a>
           </div>
         </div>
       </footer>
